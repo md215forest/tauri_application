@@ -1,50 +1,59 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+// react-kanbanをインポートする
+// 型定義ファイル（.d.ts）がないため、`@ts-ignore`を指定することで
+// TypeScriptのエラーを抑止している
 
+// @ts-ignore
+import Board from "@asseinfo/react-kanban";
+import "@asseinfo/react-kanban/dist/styles.css";
+
+// かんばんボードに最初に表示するデータを作成する
+const board = {
+  columns: [
+    {
+      id: 0,
+      title: "バックログ",
+      cards: [
+        {
+          id: 0,
+          title: "かんばんボードを追加する",
+          description: "react-kanbanを使用する",
+        },
+      ],
+    },
+    {
+      id: 1,
+      title: "開発中",
+      cards: [],
+    },
+  ],
+};
+
+// かんばんボードコンポーネントを表示する
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    <>
+      <Board
+        // ボードの初期データ
+        initialBoard={board}
+        // カードの追加を許可（トップに「＋」ボタンを表示）
+        allowAddCard={{ on: "top" }}
+        // カードの削除を許可
+        allowRemoveCard
+        // カラム（カードのグループ）のドラッグをオフにする
+        disableColumnDrag
+        // 新しいカードの作成時、idに現在時刻の数値表現をセットする
+        onNewCardConfirm={(draftCard: any) => ({
+          id: new Date().getTime(),
+          ...draftCard,
+        })}
+        // 新しいカードが作成されたら、カード等の内容をコンソールに表示する
+        onCardNew={console.log}
+        // カードがドラッグされたら、カード等の内容をコンソールに表示する
+        onCardDragEnd={console.log}
+        // カードが削除されたら、カード等の内容をコンソールに表示する
+        onCardRemove={console.log}
+      />
+    </>
   );
 }
 
